@@ -71,7 +71,7 @@ $result->input(); // "sw1a1aa"
 
 ## Next Steps
 
-- [Basic Usage](/postal-code/basic-usage/) - Validation patterns
-- [Custom Handlers](/postal-code/custom-handlers/) - Add custom validators
-- [Exception Handling](/postal-code/exception-handling/) - Handle validation errors
-- [Laravel Integration](/postal-code/laravel-integration/) - Use with Laravel
+- [Basic Usage](./basic-usage.md) - Validation patterns
+- [Custom Handlers](./custom-handlers.md) - Add custom validators
+- [Exception Handling](./exception-handling.md) - Handle validation errors
+- [Laravel Integration](./laravel-integration.md) - Use with Laravel
