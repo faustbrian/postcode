@@ -17,17 +17,22 @@ use function preg_match;
 /**
  * Validates and formats postal codes for Lebanon (LB).
  *
- * Lebanon uses an 8-digit numeric postal code system formatted as two
- * groups of four digits separated by a space (NNNN NNNN). This handler
- * accepts input with or without spaces and formats it correctly.
+ * Lebanon uses multiple official postal code formats:
+ * - 4 digits for rural/basic areas (e.g., 1000 for Beirut region)
+ * - 5 digits for placeholder codes (e.g., 00000)
+ * - 8 digits (NNNN NNNN) for urban/specific addresses and P.O. Boxes
  *
  * @author Brian Faust <brian@cline.sh>
  * @see https://en.wikipedia.org/wiki/List_of_postal_codes
+ * @see https://www.smarty.com/docs/cloud/international-street-api#lebanon
  */
 final class LBHandler implements PostalCodeHandler
 {
     /**
      * Validates a postal code for Lebanon.
+     *
+     * Accepts 4, 5, or 8 digit formats as per Lebanon's official
+     * postal code standards.
      *
      * @param  string $postalCode The postal code to validate
      * @return bool   True if the postal code is valid, false otherwise
@@ -40,12 +45,11 @@ final class LBHandler implements PostalCodeHandler
     /**
      * Formats a postal code for Lebanon.
      *
-     * Accepts postal codes with or without spaces and returns them
-     * in the standard NNNN NNNN format. Returns the original input
-     * if the postal code is invalid.
+     * 8-digit codes are formatted as NNNN NNNN, while 4 and 5 digit
+     * codes are returned as-is.
      *
      * @param  string $postalCode The postal code to format
-     * @return string The formatted postal code (NNNN NNNN) or original input if invalid
+     * @return string The formatted postal code or original input if invalid
      */
     public function format(string $postalCode): string
     {
@@ -59,26 +63,31 @@ final class LBHandler implements PostalCodeHandler
      */
     public function hint(): string
     {
-        return 'PostalCode format is NNNN NNNN, where N stands for a digit.';
+        return 'PostalCode format is 4 digits (rural), 5 digits (placeholder), or NNNN NNNN (urban/P.O. Box).';
     }
 
     /**
      * Validates and formats the postal code internally.
      *
-     * Validates that the input consists of exactly 8 consecutive digits,
-     * then formats it as two groups of 4 digits separated by a space.
+     * Accepts 4, 5, or 8 digit codes. Formats 8-digit codes
+     * as NNNN NNNN, returns others as-is.
      *
      * @param  string      $postalCode The postal code to validate and format
-     * @return null|string The formatted postal code (NNNN NNNN) or null if invalid
+     * @return null|string The formatted postal code or null if invalid
      */
     private function doFormat(string $postalCode): ?string
     {
-        // Must have exactly 8 digits
-        if (preg_match('/^\d{8}$/', $postalCode) !== 1) {
+        // Accept 4, 5, or 8 digit codes
+        if (preg_match('/^\d{4}$|^\d{5}$|^\d{8}$/', $postalCode) !== 1) {
             return null;
         }
 
-        // Format as NNNN NNNN
-        return mb_substr($postalCode, 0, 4).' '.mb_substr($postalCode, 4);
+        // Format 8-digit codes as NNNN NNNN
+        if (preg_match('/^\d{8}$/', $postalCode) === 1) {
+            return mb_substr($postalCode, 0, 4).' '.mb_substr($postalCode, 4);
+        }
+
+        // Return 4 and 5 digit codes as-is
+        return $postalCode;
     }
 }
